@@ -6,9 +6,9 @@ interface PropsFormField {
     name?: string;
     placeholder?: string;
     value?: string;
-    handleChange?: any;
     isSurpriseMe?: boolean;
-    handleSurpriseMe?: any;
+    handleChange?: (e: React.ChangeEvent<HTMLInputElement>) => void
+    handleSurpriseMe?: () => void
 }
 
 const FormField = ({
