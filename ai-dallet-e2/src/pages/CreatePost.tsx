@@ -14,18 +14,66 @@ const CreatePost = () => {
     const [generatingImg, setGeneratingImg] = useState<boolean>(false);
     const [loading, setLoading] = useState<boolean>(false);
 
-    const handleSubmit = () => {};
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+
+        if (form.prompt && form.photo) {
+            setLoading(true);
+
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/posts', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(form),
+                });
+
+                await response.json();
+                navigate('/');
+            } catch (error) {
+                alert(error);
+            } finally {
+                setLoading(false);
+            }
+        } else {
+            alert('Please enter a prompt  and generate an image')
+        }
+    };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setForm({...form, [e.target.name] : e.target.value});
+        setForm({ ...form, [e.target.name]: e.target.value });
     };
 
     const handleSurpriseMe = () => {
         const randomPrompt = getRandomPrompt(form.prompt);
-        setForm({... form, prompt: randomPrompt})
+        setForm({ ...form, prompt: randomPrompt });
     };
 
-    const generateImage = () => {};
+    const generateImage = async () => {
+        if (form.prompt) {
+            try {
+                setGeneratingImg(true);
+                const response = await fetch('http://localhost:8080/api/v1/dallet', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ prompt: form.prompt }),
+                });
+
+                const data = await response.json();
+
+                setForm({ ...form, photo: `data:image/jpeg;base64,${data.photo}` });
+            } catch (error) {
+                alert(error);
+            } finally {
+                setGeneratingImg(false);
+            }
+        } else {
+            alert('Please enter a prompt');
+        }
+    };
 
     return (
         <section className="max-7-7xl mx-auto">
