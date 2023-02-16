@@ -1,20 +1,73 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Loader, Card, FormField } from '@/components';
+import { PropsCard } from '@/components/Card';
 
-const RenderCards = ({data, title}) => {
-    if(data?.length > 0) {
-        return data.map((post) => <Card key={post._id} {...post}/>)
+interface PropsRenderCards {
+    data: PropsCard[];
+    title: string;
+}
+const RenderCards = ({ data, title }: PropsRenderCards) => {
+    if (data?.length > 0) {
+        <div>
+            {data.map((post) => (
+                <Card key={post._id} {...post} />
+            ))}
+        </div>;
     }
 
-    return (
-        <h2 className="mt-5 font-bold text-[#6449ff] text-xl uppercase">{title}</h2>
-    )
-}
+    return <h2 className="mt-5 font-bold text-[#6449ff] text-xl uppercase">{title}</h2>;
+};
 
 const Home = () => {
     const [loading, setLoading] = useState<boolean>(false);
-    const [allPosts, setAllPosts] = useState(null);
+    const [allPosts, setAllPosts] = useState<PropsCard[]>([]);
     const [searchText, setSearchText] = useState<string>('');
+    const [searchedResult, setSearchedResult] = useState<PropsCard[]>([]);
+    const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
+
+    useEffect(() => {
+        const fetchPosts = async () => {
+            setLoading(true);
+
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/post', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+
+                    setAllPosts(result.data.reverse());
+                }
+            } catch (error) {
+                alert(error);
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchPosts();
+    }, []);
+
+    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (searchTimeout) {
+            clearTimeout(searchTimeout);
+        }
+
+        setSearchText(e.target.value);
+        const setTimeOut = setTimeout(() => {
+            const searchResult = allPosts?.filter(
+                (item: PropsCard) =>
+                    item.name.toLowerCase().includes(searchText.toLowerCase()) ||
+                    item.prompt.toLowerCase().includes(searchText.toLowerCase()),
+            );
+
+            setSearchedResult(searchResult!);
+        }, 500);
+        setSearchTimeout(setTimeOut);
+    };
 
     return (
         <section className="max-w-7xl mx-auto">
@@ -26,7 +79,14 @@ const Home = () => {
             </div>
 
             <div className="mt-16">
-                <FormField />
+                <FormField
+                    labelName="Search posts"
+                    type="text"
+                    name="text"
+                    placeholder="Search posts"
+                    value={searchText}
+                    handleChange={handleSearchChange}
+                />
             </div>
 
             <div className="mt-10">
@@ -36,25 +96,19 @@ const Home = () => {
                     </div>
                 ) : (
                     <>
-                    {searchText && (
-                        <h2 className="font-medium text-[#666e75] text-xl mb-3">
-                            Showing results for <span className="text-[#222328]">{searchText}</span>
-                        </h2>
-                    )}
-
-                    <div className="grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3">
-                        {searchText ? (
-                            <RenderCards 
-                                data="searchedResults"
-                                title="No search results found"
-                            />
-                        ) : (
-                            <RenderCards 
-                                data="allPosts"
-                                title="No posts found"
-                            />
+                        {searchText && (
+                            <h2 className="font-medium text-[#666e75] text-xl mb-3">
+                                Showing results for <span className="text-[#222328]">{searchText}</span>
+                            </h2>
                         )}
-                    </div>
+
+                        <div className="grid lg:grid-cols-4 sm:grid-cols-3 xs:grid-cols-2 grid-cols-1 gap-3">
+                            {searchText ? (
+                                <RenderCards data={searchedResult} title="No search results found" />
+                            ) : (
+                                <RenderCards data={allPosts} title="No posts found" />
+                            )}
+                        </div>
                     </>
                 )}
             </div>
