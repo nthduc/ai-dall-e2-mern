@@ -21,7 +21,7 @@ const CreatePost = () => {
             setLoading(true);
 
             try {
-                const response = await fetch('http://localhost:8080/api/v1/posts', {
+                const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/v1/post`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -54,12 +54,14 @@ const CreatePost = () => {
         if (form.prompt) {
             try {
                 setGeneratingImg(true);
-                const response = await fetch('http://localhost:8080/api/v1/dallet', {
+                const response = await fetch(`${import.meta.env.VITE_SERVER_URL}/api/v1/dallet`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({ prompt: form.prompt }),
+                      },
+                      body: JSON.stringify({
+                        prompt: form.prompt,
+                      }),
                 });
 
                 const data = await response.json();
