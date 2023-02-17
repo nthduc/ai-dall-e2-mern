@@ -4,9 +4,15 @@ import { getRandomPrompt } from '@/utils';
 import { FormField, Loader } from '@/components';
 import { useNavigate } from 'react-router-dom';
 
+type StateForm = {
+    name: string;
+    prompt: string;
+    photo: string;
+}
+
 const CreatePost = () => {
     const navigate = useNavigate();
-    const [form, setForm] = useState({
+    const [form, setForm] = useState<StateForm>({
         name: '',
         prompt: '',
         photo: '',

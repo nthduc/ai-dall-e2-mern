@@ -1,4 +1,10 @@
-import mongoose from "mongoose";
+import mongoose, { Document } from "mongoose";
+
+interface PostDocument extends Document {
+    name: string;
+    prompt: string;
+    photo: string;
+}
 
 const Post = new mongoose.Schema({
     name: {type: String , required: true},
@@ -6,6 +12,6 @@ const Post = new mongoose.Schema({
     photo: {type: String , required: true},
 });
 
-const PostSchema = mongoose.model('Post',Post);
+const PostSchema = mongoose.model<PostDocument>('Post',Post);
 
 export default PostSchema;

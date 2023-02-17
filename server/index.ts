@@ -1,4 +1,4 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import * as dotenv from 'dotenv';
 import cors from 'cors';
 import connectDB from './mongodb/connect';
@@ -15,7 +15,7 @@ app.use(express.json({limit: '50mb'}));
 app.use('/api/v1/post',postRoutes);
 app.use('/api/v1/dallet',dalletRoutes);
 
-app.get('/', async (req,res) => {
+app.get('/', async (req: Request,res: Response) => {
     res.send("Hello from DALL-E!");
 });
 
@@ -23,7 +23,7 @@ const startServer = async () => {
 
     try {
         connectDB(process.env.MONGODB_URL);
-        app.listen(PORT,() => console.log(`Server has start on PORT ${PORT} http://localhost:${PORT}`));
+        app.listen(PORT,() => console.log(`Server has start on PORT ${PORT}`));
     } catch (err) {
         console.log(err);
     }

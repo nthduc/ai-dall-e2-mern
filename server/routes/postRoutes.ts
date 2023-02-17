@@ -1,6 +1,5 @@
-import express from 'express';
+import express, { Request, Response } from 'express';
 import * as dotenv from 'dotenv';
-import { Configuration, OpenAIApi } from 'openai';
 import { v2 as cloudinary } from 'cloudinary';
 
 import Post from '../mongodb/models/post';
@@ -14,7 +13,7 @@ cloudinary.config({
     api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
-router.route('/').get(async (req, res) => {
+router.route('/').get(async (req: Request, res: Response) => {
     try {
         const posts = await Post.find({});
 
@@ -25,7 +24,7 @@ router.route('/').get(async (req, res) => {
     }
 });
 
-router.route('/').post(async (req, res) => {
+router.route('/').post(async (req: Request, res: Response) => {
   try {
     const { name, prompt, photo } = req.body;
     const photoUrl = await cloudinary.uploader.upload(photo);
